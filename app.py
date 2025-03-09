@@ -7,7 +7,6 @@ from wtforms.fields.simple import EmailField, PasswordField, BooleanField, Submi
 from wtforms.validators import DataRequired
 
 import data.db_session
-from data import *
 from data.__all_models import User
 
 app = Flask(__name__)
@@ -30,7 +29,7 @@ def login_page():
         return flask.redirect('/')
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        db_sess = db_session.create_session()
+        db_sess = data.db_session.create_session()
         email = login_form.email
         password = login_form.password
         if not db_sess.query(User).filter(User.email == email.data, User.hashed_password == password.data).first():
@@ -40,13 +39,14 @@ def login_page():
             flask.session['get_logged_in'] = get_logged_in + 1
             return flask.redirect('/')
         else:
-            if password.data in db_sess.query(User).filter(User.email == email.data, User.hashed_password == password.data).first() and email.data in db_sess.query(
-                User).filter_by(User.email == email.data, User.hashed_password == password.data).first():
+            if password.data == db_sess.query(User).filter(User.email == email.data,
+                                                           User.hashed_password == password.data).first() and email.data == db_sess.query(
+                    User).filter_by(User.email == email.data, User.hashed_password == password.data).first():
                 get_logged_in = flask.session.get('get_logged_in', 0)
                 flask.session['get_logged_in'] = get_logged_in + 1
                 return flask.redirect('/')
             else:
-                return render_template('login.html', form=login_form, message='Неверный пароль!',
+                return render_template('login.html', form=login_form, message='Неверные данные!',
                                        current_user=flask_login.current_user)
     return render_template('login.html', form=login_form, current_user=flask_login.current_user)
 
