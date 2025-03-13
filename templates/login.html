@@ -23,6 +23,7 @@
             {% endfor %}
         </p>
         <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <a href="{{ url_for('redirect_register_page') }}" class="btn btn-primary btn-lg mt-3">Ещё не зарегистрированы ?</a>
         <div>{{ message }}</div>
     </form>
 {% endblock %}
