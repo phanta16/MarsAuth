@@ -19,9 +19,6 @@ class User(SqlAlchemyBase):
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime)
 
-    def __repr__(self):
-        return f'{self.surname} {self.name}'
-
 class Jobs(SqlAlchemyBase):
     __tablename__ = 'jobs'
 

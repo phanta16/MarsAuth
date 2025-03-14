@@ -36,7 +36,7 @@ class LoginForm(FlaskForm):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    if 'get_logged_in' in flask.session:
+    if flask.session.get('get_logged_in', False):
         return flask.redirect('/')
     login_form = LoginForm()
     if login_form.validate_on_submit():
@@ -44,9 +44,11 @@ def login_page():
         email = login_form.email
         password = login_form.password
         if db_sess.query(User).filter(User.email == email.data, User.hashed_password == password.data).first():
-            db_sess.commit()
-            get_logged_in = flask.session.get('get_logged_in', 0)
-            flask.session['get_logged_in'] = get_logged_in + 1
+            us = db_sess.query(User).filter(User.email == email.data, User.hashed_password == password.data).first()
+            print(us)
+            flask.session['get_logged_in'] = True
+            flask.session['name'] = us.name
+            flask.session['surname'] = us.surname
             return flask.redirect('/')
         else:
             return render_template('login.html', form=login_form, message='Неверные данные!',
@@ -57,7 +59,7 @@ def login_page():
 
 @app.route('/register', methods=['GET', 'POST'])
 def reg_page():
-    if 'get_logged_in' in flask.session:
+    if flask.session.get('get_logged_in', False):
         return flask.redirect('/')
     registration_form = RegisterForm()
     name = registration_form.name.data
@@ -76,8 +78,9 @@ def reg_page():
         if db_sess.query(User).filter(User.email == email).first():
             return render_template('register.html', form=registration_form, message='Вы уже зарегистрированы!',
                                    current_user=flask_login.current_user)
-        db_sess.add(User(name=name, surname=surname, hashed_password=password, age=int(age), position=position, speciality=speciality,
-                            address=address, email=email))
+        db_sess.add(User(name=name, surname=surname, hashed_password=password, age=int(age), position=position,
+                         speciality=speciality,
+                         address=address, email=email))
         db_sess.commit()
         return flask.redirect('/login')
     return render_template('register.html', form=registration_form, current_user=flask_login.current_user)
@@ -92,11 +95,17 @@ def redirect_login_page():
 def redirect_register_page():
     return flask.redirect('/register')
 
+@app.route('/logout/')
+def log_out():
+    flask.session['get_logged_in'] = False
+    return flask.redirect('/register')
+
 
 @app.route('/')
 def main():
     if 'get_logged_in' in flask.session:
-        return render_template('main.html')
+        return render_template('main.html', name=flask.session.get('name', None),
+                               surname=flask.session.get('surname', None), )
     return flask.redirect('/register')
 
 
