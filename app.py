@@ -8,8 +8,9 @@ from wtforms.fields.simple import EmailField, PasswordField, SubmitField, String
 from wtforms.validators import DataRequired
 
 import data.db_session
-from data.__all_models import User
+from data.__all_models import User, Jobs
 from data_api import *
+import data_api
 
 app = Flask(__name__)
 
