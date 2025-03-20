@@ -1,4 +1,5 @@
-import flask
+import datetime
+
 import flask_login
 from flask import Flask
 from flask import render_template
@@ -8,12 +9,15 @@ from wtforms.validators import DataRequired
 
 import data.db_session
 from data.__all_models import User
+from data_api import *
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 data.db_session.global_init('db/users.db')
+
+app.register_blueprint(data_api.blueprint)
 
 
 class RegisterForm(FlaskForm):
@@ -34,6 +38,14 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
+class JobForm(FlaskForm):
+    job = StringField('Наименование деятельности', validators=[DataRequired()])
+    collaborators = StringField('Помощники', validators=[DataRequired()])
+    work_size = StringField('Размер проделанной работы', validators=[DataRequired()])
+    date_of_end = StringField('Через сколько дней будет окончена работа', validators=[DataRequired()])
+    submit = SubmitField('Занести в Базу Данных')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     if flask.session.get('get_logged_in', False):
@@ -45,10 +57,8 @@ def login_page():
         password = login_form.password
         if db_sess.query(User).filter(User.email == email.data, User.hashed_password == password.data).first():
             us = db_sess.query(User).filter(User.email == email.data, User.hashed_password == password.data).first()
-            print(us)
             flask.session['get_logged_in'] = True
-            flask.session['name'] = us.name
-            flask.session['surname'] = us.surname
+            flask.session['id'] = us.id
             return flask.redirect('/')
         else:
             return render_template('login.html', form=login_form, message='Неверные данные!',
@@ -95,17 +105,41 @@ def redirect_login_page():
 def redirect_register_page():
     return flask.redirect('/register')
 
+
 @app.route('/logout/')
 def log_out():
     flask.session['get_logged_in'] = False
     return flask.redirect('/register')
 
 
+@app.route('/make_new_post/', methods=['GET', 'POST'])
+def make_new_post():
+    db_sess = data.db_session.create_session()
+    job_form = JobForm()
+    if not flask.session.get('get_logged_in', False):
+        return flask.redirect('/')
+    else:
+        if job_form.validate_on_submit():
+            job_name = job_form.job.data
+            job_size = job_form.work_size.data
+            job_collab = job_form.collaborators.data
+            team_leader = flask.session.get('id', None)
+            db_sess.add(Jobs(job=job_name, team_leader=team_leader, work_size=int(job_size), collaborators=job_collab,
+                             start_date=datetime.datetime.now(),
+                             end_date=datetime.datetime.now() + datetime.timedelta(
+                                 days=int(job_form.date_of_end.data)), is_finished=False))
+            db_sess.commit()
+            return flask.redirect('/')
+    return render_template('jobs.html', form=job_form, current_user=flask_login.current_user)
+
+
 @app.route('/')
 def main():
+    db_sess = data.db_session.create_session()
+    cur_user = db_sess.query(User).filter(User.id == flask.session.get('id', None)).first()
     if 'get_logged_in' in flask.session:
-        return render_template('main.html', name=flask.session.get('name', None),
-                               surname=flask.session.get('surname', None), )
+        return render_template('main.html', name=cur_user.name,
+                               surname=cur_user.name)
     return flask.redirect('/register')
 
 

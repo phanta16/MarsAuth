@@ -2,5 +2,6 @@
 {% block content %}
         <h1>Вы авторизованы, {{ name }} {{ surname }}!</h1>
 
-    <a href="{{ url_for('log_out') }}" class="btn btn-primary btn-lg mt-3">Выйти из системы ?</a>
+    <a href="{{ url_for('log_out') }}" class="btn btn-primary btn-lg mt-3">Выйти из системы</a>
+    <a href="{{ url_for('make_new_post') }}" class="btn btn-primary btn-lg mt-3">Подать отчёт об проделанной работе</a>
 {% endblock %}
