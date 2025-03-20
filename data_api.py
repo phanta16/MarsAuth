@@ -7,7 +7,6 @@ import datetime
 import data.db_session
 from data.__all_models import User, Jobs
 from data_api import *
-
 blueprint = Blueprint('jobs', __name__)
 
 
@@ -50,5 +49,16 @@ def add_jobs():
                              days=int(dataa['finish'])), is_finished=False))
         db_sess.commit()
         return jsonify({'success': 200})
+    except Exception as e:
+        return jsonify({'error': 'Incorrect data!'})
+
+
+@blueprint.route('/api/jobs/<int:jobs_id>', methods=['DELETE'])
+def del_jobs(jobs_id):
+    db_sess = data.db_session.create_session()
+    try:
+        db_sess.delete(db_sess.query(Jobs).get(jobs_id))
+        db_sess.commit()
+        return  jsonify({'success': 200})
     except Exception as e:
         return jsonify({'error': 'Incorrect data!'})
