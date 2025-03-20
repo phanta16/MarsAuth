@@ -51,4 +51,4 @@ def add_jobs():
         db_sess.commit()
         return jsonify({'success': 200})
     except Exception as e:
-        return jsonify({'error': e})
+        return jsonify({'error': 'Incorrect data!'})
