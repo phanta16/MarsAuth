@@ -7,6 +7,7 @@ import datetime
 import data.db_session
 from data.__all_models import User, Jobs
 from data_api import *
+from flask import make_response
 blueprint = Blueprint('jobs', __name__)
 
 
@@ -50,7 +51,7 @@ def add_jobs():
         db_sess.commit()
         return jsonify({'success': 200})
     except Exception as e:
-        return jsonify({'error': 'Incorrect data!'})
+        return flask.make_response(jsonify({'error': 'Incorrect data!'}), 404)
 
 
 @blueprint.route('/api/jobs/<int:jobs_id>', methods=['DELETE'])
@@ -61,4 +62,24 @@ def del_jobs(jobs_id):
         db_sess.commit()
         return  jsonify({'success': 200})
     except Exception as e:
-        return jsonify({'error': 'Incorrect data!'})
+        return flask.make_response(jsonify({'error': 'Incorrect data!'}), 404)
+
+
+@blueprint.route('/api/jobs/<int:jobs_id>', methods=['PATCH'])
+def patch_jobs(jobs_id):
+    db_sess = data.db_session.create_session()
+    dataa = request.get_json()
+    jobs = db_sess.query(Jobs).get(jobs_id)
+    try:
+        if 'name' in dataa:
+            jobs.job = dataa['name']
+        if 'work_size' in dataa:
+            jobs.work_size = dataa['work_size']
+        if 'collaborators' in dataa:
+            jobs.collaborators = dataa['collaborators']
+        if 'is_finished' in dataa:
+            jobs.is_finished = dataa['is_finished']
+        db_sess.commit()
+        return jsonify({'success': 200})
+    except Exception as e:
+        return flask.make_response(jsonify({'error': 'Incorrect data!'}), 404)
