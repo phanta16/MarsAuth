@@ -1,5 +1,6 @@
 import datetime
 
+from flask_restful import Api
 import flask_login
 from flask import Flask
 from flask import render_template
@@ -8,17 +9,21 @@ from wtforms.fields.simple import EmailField, PasswordField, SubmitField, String
 from wtforms.validators import DataRequired
 
 import data.db_session
+import user_resources
 from data.__all_models import User, Jobs
 from data_api import *
 import data_api
 
 app = Flask(__name__)
+api = Api(app)
 
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 data.db_session.global_init('db/users.db')
 
-app.register_blueprint(data_api.blueprint)
+# app.register_blueprint(data_api.blueprint)
+api.add_resource(user_resources.UsersAPI, '/api/users')
+api.add_resource(user_resources.UserAPI, '/api/users/<int:user _id>')
 
 
 class RegisterForm(FlaskForm):
@@ -142,6 +147,10 @@ def main():
         return render_template('main.html', name=cur_user.name,
                                surname=cur_user.name)
     return flask.redirect('/register')
+
+
+
+
 
 
 if __name__ == '__main__':

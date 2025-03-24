@@ -77,8 +77,8 @@ def patch_jobs(jobs_id):
             jobs.work_size = dataa['work_size']
         if 'collaborators' in dataa:
             jobs.collaborators = dataa['collaborators']
-        if 'is_finished' in dataa:
-            jobs.is_finished = dataa['is_finished']
+        if 'finish' in dataa:
+            jobs.is_finished = dataa['finish']
         db_sess.commit()
         return jsonify({'success': 200})
     except Exception as e:
