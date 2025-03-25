@@ -23,7 +23,7 @@ data.db_session.global_init('db/users.db')
 
 # app.register_blueprint(data_api.blueprint)
 api.add_resource(user_resources.UsersAPI, '/api/users')
-api.add_resource(user_resources.UserAPI, '/api/users/<int:user _id>')
+api.add_resource(user_resources.UserAPI, '/api/users/<int:user_id>')
 
 
 class RegisterForm(FlaskForm):
