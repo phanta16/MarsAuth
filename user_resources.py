@@ -9,7 +9,7 @@ def abort_if_not_found(user_id):
     db_sess = data.db_session.create_session()
     user = db_sess.query(User).get(user_id)
     if not user:
-        abort(404, message=f"User {user_id} not found")
+        abort(404, message=f"User {user_id} not found!")
 
 
 class UsersAPI(Resource):

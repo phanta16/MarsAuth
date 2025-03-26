@@ -10,6 +10,7 @@ from wtforms.validators import DataRequired
 
 import data.db_session
 import user_resources
+import jobs_resources
 from data.__all_models import User, Jobs
 from data_api import *
 import data_api
@@ -21,9 +22,12 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 data.db_session.global_init('db/users.db')
 
-# app.register_blueprint(data_api.blueprint)
+
 api.add_resource(user_resources.UsersAPI, '/api/users')
 api.add_resource(user_resources.UserAPI, '/api/users/<int:user_id>')
+
+api.add_resource(jobs_resources.JobsAPI, '/api/jobs')
+api.add_resource(jobs_resources.JobAPI, '/api/jobs/<int:jobs_id>')
 
 
 class RegisterForm(FlaskForm):
